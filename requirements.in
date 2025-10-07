@@ -1,0 +1,16 @@
+compress-json
+configparser
+numpy<2.0.0
+openpyxl
+packaging>=23.2
+pandas==1.5.3
+pydantic<=2.11.7
+pymssql==2.3.1
+pysmb
+python-dateutil
+pyyaml
+requests
+solace-pubsubplus==1.9.0
+sqlalchemy==1.4.46
+urllib3<2.0.2
+xlrd
