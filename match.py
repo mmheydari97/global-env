@@ -5,6 +5,7 @@ from packaging.requirements import Requirement
 from packaging.utils import canonicalize_name
 from packaging.markers import default_environment
 
+
 ENV = default_environment()
 def load_pipfile_lock(path: Path, sections=("default","develop")):
     data = json.loads(path.read_text())
