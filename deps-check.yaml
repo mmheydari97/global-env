@@ -1,0 +1,59 @@
+# This GitHub Action workflow verifies that the Pipfile.lock in this repository
+# is in sync with the canonical requirements.txt from your global-env.
+# It runs on every push and pull request to protected branches.
+
+name: 'Dependency Version Check'
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+
+jobs:
+  verify-dependencies:
+    name: 'Verify Pipfile.lock Consistency'
+    runs-on: ubuntu-latest
+    
+    steps:
+      # 1. Check out the code from the current repository (dev-repo)
+      - name: 'Checkout Dev Repo'
+        uses: actions/checkout@v4
+
+      # 2. Fetch the 'global-env' into a separate directory named 'constraints'.
+      #    This will contain requirements.txt AND match.py.
+      - name: 'Checkout Version Repo for Constraints & Script'
+        uses: actions/checkout@v4
+        with:
+          # IMPORTANT: Replace with the actual owner/repo name of your global-env
+          repository: 'mmheydari97/global-env' 
+          # You may need a Personal Access Token (PAT) if the repo is private.
+          # Store it as a secret named GH_PAT in your repository settings.
+          # token: ${{ secrets.GH_PAT }}
+          path: 'constraints'
+
+      # 3. Set up a Python environment
+      - name: 'Set up Python'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # 4. Install the 'packaging' library, which is a dependency for the match.py script
+      - name: 'Install Script Dependencies'
+        run: python -m pip install packaging
+
+      # 5. Define PIP_CONSTRAINT environment variable for any subsequent steps
+      #    This points to the fetched requirements.txt file.
+      - name: 'Set PIP_CONSTRAINT Environment Variable'
+        run: echo "PIP_CONSTRAINT=$(pwd)/constraints/requirements.txt" >> $GITHUB_ENV
+
+      # 6. Run your Python script (now located in the 'constraints' directory) to verify the versions.
+      - name: 'Verify Environment Consistency'
+        run: |
+          echo "Constraint file is at: $PIP_CONSTRAINT"
+          python constraints/match.py --pipfile-lock Pipfile.lock --requirements "$PIP_CONSTRAINT"
+

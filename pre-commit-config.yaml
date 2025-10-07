@@ -1,0 +1,18 @@
+# This file configures the pre-commit hooks for the repository.
+
+repos:
+  - repo: local
+    hooks:
+      - id: dependency-version-check
+        name: 'Check Pipfile.lock against production requirements'
+        # The entry point is now the script inside the 'constraints' directory
+        entry: ./constraints/match.py
+        args: ["--pipfile-lock", "Pipfile.lock", "--requirements", "constraints/requirements.txt"]
+        language: 'python'
+        # This hook will only run if the Pipfile.lock changes.
+        files: '^Pipfile\.lock$'
+        # Additional dependencies for the script itself can be listed here.
+        additional_dependencies: ['packaging']
+        pass_filenames: false
+        verbose: true
+        
